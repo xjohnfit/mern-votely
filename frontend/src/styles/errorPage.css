@@ -7,10 +7,10 @@
 }
 
 .errorPage__container {
-    width: fit-content;
+    width: 100vw;
     text-align: center;
 }
 
 .errorPage__container h1 {
-    font-size: 4rem;
+    font-size: 2rem;
 }
