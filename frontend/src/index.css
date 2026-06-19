@@ -2,7 +2,7 @@
 
 :root {
     --primary-color: rgb(15, 89, 193);
-    --primary-color-variant: rgb(11, 175, 207);
+    --primary-color-variant: rgb(56, 189, 211);
     --color-white: #fff;
     --color-black: #000;
     --color-gray-100: #eee;
@@ -35,6 +35,23 @@
     text-decoration: none;
     border: none;
     box-sizing: border-box;
+}
+
+.dark {
+    --primary-color: rgb(64, 145, 247);
+    --primary-color-variant: rgb(110, 231, 245);
+    --color-white: #fff;
+    --color-black: #e8e8e8;
+    --color-gray-100: #1a1a1a;
+    --color-gray-200: #242424;
+    --color-gray-300: #2e2e2e;
+    --color-gray-400: #444;
+    --color-gray-500: #6b6b6b;
+    --color-gray-600: #9a9a9a;
+    --color-gray-700: #cfcfcf;
+    --color-gray-800: #f1f1f1;
+    --color-danger: rgb(255, 107, 107);
+    --color-success: rgb(45, 201, 142);
 }
 
 body {
@@ -129,4 +146,3 @@ button {
     background-color: var(--color-black);
     color: var(--color-white);
 }
-

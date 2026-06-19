@@ -118,4 +118,10 @@ nav {
         height: 4rem;
         box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.1);
     }
+
+    .dark .nav__container menu a {
+        background: var(--color-gray-100);
+        color: var(--color-gray-800);
+        box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.4);
+    }
 }
