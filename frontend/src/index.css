@@ -151,3 +151,61 @@ button {
     background-color: var(--color-gray-0);
     color: var(--color-gray-100);
 }
+
+/* MODALS */
+
+.modal {
+    backdrop-filter: blur(5px);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    height: 100vh;
+    width: 100vw;
+    background: rgba(0, 0, 0, 0.7);
+    display: grid;
+    place-items: center;
+}
+
+.modal__content {
+    background: var(--color-gray-0);
+    width: 35rem;
+    border-radius: var(--radius-5);
+    overflow: hidden;
+}
+
+.modal__header {
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem;
+}
+
+.modal h4 {
+    color: #fff;
+}
+
+.modal__header button {
+    background: transparent;
+    font-size: 1.8rem;
+    color: #fff;
+}
+
+.modal__content form {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 2rem;
+    padding-bottom: 3rem;
+}
+
+.modal__content form input {
+    margin-top: 0.6rem;
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background: var(--color-gray-100);
+    border-radius: var(--radius-1);
+    color: var(--color-gray-900);
+}
