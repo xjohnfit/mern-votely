@@ -3,7 +3,7 @@
     place-items: center;
     height: 100vh;
     width: 100vw;
-    background: var(--color-white);
+    background: var(--color-gray-0);
 }
 
 .errorPage__container {

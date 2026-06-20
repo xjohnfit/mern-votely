@@ -1,6 +1,6 @@
 nav {
-    background: var(--primary-color);
-    width: 100vw;
+    background: var(--color-primary);
+    width: 100%;
     display: grid;
     place-items: center;
     height: 3rem;
@@ -11,7 +11,7 @@ nav {
 }
 
 .nav__container * {
-    color: var(--color-white);
+    color: var(--color-gray-0);
 }
 
 .nav__container {
@@ -55,7 +55,7 @@ nav {
 }
 
 .nav__container a:hover {
-    color: var(--primary-color-variant);
+    color: var(--color-primary-variant);
 }
 
 .nav__container menu {
@@ -109,8 +109,8 @@ nav {
     }
 
     .nav__container menu a {
-        background: var(--color-white);
-        color: var(--color-black);
+        background: var(--color-gray-0);
+        color: var(--color-gray-900);
         border-bottom: 1px solid var(--color-gray-200);
         width: 100%;
         display: grid;
