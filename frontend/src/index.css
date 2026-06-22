@@ -209,3 +209,11 @@ button {
     border-radius: var(--radius-1);
     color: var(--color-gray-900);
 }
+
+/* MEDIA QUERIES */
+
+@media screen and (max-width: 600px) {
+    .modal__content {
+        width: var(--container-w-sm);
+    }
+}

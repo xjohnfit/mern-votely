@@ -53,3 +53,13 @@
     display: block;
     margin: 0.5rem 0 1rem;
 }
+
+/* MEDIA QUERIES */
+
+@media screen and (max-width: 600px) {
+    .candidates__header {
+        width: var(--container-w-sm);
+    }
+
+    
+}

@@ -1,5 +1,6 @@
 import { useDispatch } from "react-redux";
 import { UiActions } from "../store/uiSlice";
+import { voteActions } from "../store/voteSlice";
 
 const Candidate = ({ image, id, fullName, motto }) => {
 
@@ -7,6 +8,7 @@ const Candidate = ({ image, id, fullName, motto }) => {
 
     const openCandidateModal = () => {
         dispatch(UiActions.openVoteCandidateModal());
+        dispatch(voteActions.changeSelectedVoteCandidate(id))
     }
 
   return (

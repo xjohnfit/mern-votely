@@ -19,7 +19,7 @@ const Candidates = () => {
             <section className="candidates">
                 <header className="candidates__header">
                     <h1>Vote your candidate</h1>
-                    <p>This are the candidates for the selected election. Please vote wisely, you won't be allowed to vote in this election again.</p>
+                    <p>These are the candidates for the selected election. Please vote wisely, you won't be allowed to vote in this election again.</p>
                 </header>
                 <div className="container candidates__container">
                     {
