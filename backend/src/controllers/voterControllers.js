@@ -1,6 +1,7 @@
 import voterModel from "../models/voterModel.js";
 import httpError from "../utils/httpError.js";
 import bcrypt from "bcryptjs";
+import generateToken from "../utils/token.js";
 
 // POST: /voters/register
 // UNPROTECTED ROUTE
@@ -52,7 +53,18 @@ export const registerVoter = async (req, res, next) => {
             isAdmin
         });
 
-        res.status(201).json({ message: "Voter registered successfully", voter: newVoter });
+        const payload = {
+            id: newVoter._id,
+            fullName: newVoter.fullName,
+            email: newVoter.email,
+            votedElections: newVoter.votedElections,
+            isAdmin: newVoter.isAdmin
+        };
+
+        // Generate JWT token
+        const token = generateToken(payload);
+
+        res.status(201).json({ message: "Voter registered successfully", token, voter: payload });
 
     } catch (error) {
         return next(new httpError(error.message, 422));
@@ -62,11 +74,60 @@ export const registerVoter = async (req, res, next) => {
 // POST: /voters/login
 // UNPROTECTED ROUTE
 export const loginVoter = async (req, res, next) => {
-    res.json({ message: "Voter logged in successfully" });
+    try {
+        const { email, password } = req.body;
+
+        if(!email || !password) {
+            return next(new httpError("Please fill all the fields", 422));
+        }
+
+        // all emails lowercase
+        const newEmail = email.toLowerCase();
+
+        // Check if voter email exists
+        const existingVoter = await voterModel.findOne({ email: newEmail });
+
+        if(!existingVoter) {
+            return next(new httpError("Invalid email or password", 422));
+        }
+
+        // Check if password is correct
+        const isMatch = await bcrypt.compare(password, existingVoter.password);
+
+        if(!isMatch) {
+            return next(new httpError("Invalid email or password", 422));
+        }
+
+        const payload = {
+            id: existingVoter._id,
+            fullName: existingVoter.fullName,
+            email: existingVoter.email,
+            votedElections: existingVoter.votedElections,
+            isAdmin: existingVoter.isAdmin
+        };
+
+        // Generate JWT token
+        const token = generateToken(payload);
+
+        res.json({ message: "Voter logged in successfully", token, voter: payload });
+    } catch(error) {
+        return next(new httpError(error.message, 422));
+    }
 }
 
 // GET: /voters/:id
 // PROTECTED ROUTE
 export const getVoter = async (req, res, next) => {
-    res.json({ message: "Voter retrieved successfully" });
+    const { id } = req.params;
+    try {
+        const voter = await voterModel.findById(id).select("-password");
+
+        if(!voter) {
+            return next(new httpError("Voter not found", 404));
+        }
+
+        res.json({ voter });
+    } catch(error) {
+        return next(new httpError('Could not retrieve voter', 422));
+    }
 }
