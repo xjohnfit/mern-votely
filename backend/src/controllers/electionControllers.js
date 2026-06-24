@@ -1,7 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import httpError from '../utils/httpError.js';
 import ElectionModel from '../models/electionModel.js';
 import cloudinary from '../utils/cloudinary.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const uploadsDir = path.join(__dirname, '../uploads');
 
 // POST: /elections
 // PROTECTED ROUTE - Only accessible by admin users
@@ -12,11 +17,9 @@ export const addElection = async (req, res, next) => {
 
         // Validate required fields
         if (!title || !description || !thumbnail) {
-            return res
-                .status(400)
-                .json({
-                    message: 'Title, description, and thumbnail are required',
-                });
+            return res.status(400).json({
+                message: 'Title, description, and thumbnail are required',
+            });
         }
 
         // Check thumbnail size
@@ -29,7 +32,7 @@ export const addElection = async (req, res, next) => {
 
         // Rename the thumbnail file to avoid conflicts
         const thumbnailName = `${Date.now()}-${uuidv4()}-${thumbnail.name}`;
-        const uploadPath = `./uploads/${thumbnailName}`;
+        const uploadPath = path.join(uploadsDir, thumbnailName);
 
         // Move the thumbnail to the uploads directory
         await thumbnail.mv(uploadPath, (err) => {
