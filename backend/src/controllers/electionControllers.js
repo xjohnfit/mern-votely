@@ -4,6 +4,8 @@ import { fileURLToPath } from 'url';
 import httpError from '../utils/httpError.js';
 import ElectionModel from '../models/electionModel.js';
 import cloudinary from '../utils/cloudinary.js';
+import CandidateModel from '../models/candidatesModel.js';
+import VoterModel from '../models/voterModel.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, '../uploads');
@@ -12,6 +14,11 @@ const uploadsDir = path.join(__dirname, '../uploads');
 // PROTECTED ROUTE - Only accessible by admin users
 export const addElection = async (req, res, next) => {
     try {
+        // Onlu admin can update an election
+        // if(!req.user.isAdmin) {
+        //     return next(new httpError('Unauthorized', 401));
+        // }
+
         const { title, description } = req.body;
         const { thumbnail } = req.files;
 
@@ -71,14 +78,28 @@ export const addElection = async (req, res, next) => {
 
 // GET: /all-elections
 // PROTECTED ROUTE
-export const getAllElections = (req, res, next) => {
-    res.json({ message: 'All Elections retrieved successfully' });
+export const getAllElections = async (req, res, next) => {
+    try {
+        const elections = await ElectionModel.find({});
+        res.status(200).json(elections);
+    } catch (error) {
+        return next(new httpError(error));
+    }
 };
 
 // GET: /elections/:id
 // PROTECTED ROUTE
-export const getElectionById = (req, res, next) => {
-    res.json({ message: 'Election retrieved successfully' });
+export const getElectionById = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const election = await ElectionModel.findById(id);
+        if (!election) {
+            return next(new httpError('Election not found', 404));
+        }
+        res.status(200).json(election);
+    } catch (error) {
+        return next(new httpError(error));
+    }
 };
 
 // DELETE: /elections/:id
@@ -89,18 +110,95 @@ export const deleteElection = (req, res, next) => {
 
 // PATCH: /elections/:id
 // PROTECTED ROUTE - Only accessible by admin users
-export const updateElection = (req, res, next) => {
-    res.json({ message: 'Election updated successfully' });
+export const updateElection = async (req, res, next) => {
+    try {
+        // Onlu admin can update an election
+        // if(!req.user.isAdmin) {
+        //     return next(new httpError('Unauthorized', 401));
+        // }
+
+        const { id } = req.params;
+        const { title, description } = req.body;
+
+        if(!title || !description) {
+            return next(new httpError('Title and description are required', 422));
+        }
+
+        const updateData = { title, description };
+
+        if(req.files?.thumbnail) {
+
+            let { thumbnail } = req.files;
+
+            if(thumbnail.size > 1024 * 1024) {
+                return next(new httpError('Thumbnail size should not exceed 1MB', 422));
+            }
+            const thumbnailName = `${Date.now()}-${uuidv4()}-${thumbnail.name}`;
+            const uploadPath = path.join(uploadsDir, thumbnailName);
+            await thumbnail.mv(uploadPath, (err) => {
+                if(err) {
+                    return next(new httpError('Failed to upload thumbnail', 500));
+                }
+            });
+            const result = await cloudinary.uploader.upload(uploadPath, {
+                folder: 'mern-votely/elections',
+                use_filename: true,
+                unique_filename: false,
+            });
+
+            if(!result.secure_url) {
+                return next(new httpError('Failed to upload thumbnail to cloudinary', 422));
+            }
+
+            updateData.thumbnail = result.secure_url;
+        }
+
+        const election = await ElectionModel.findByIdAndUpdate(id, { title, updateData }, { returnDocument: 'after' });
+
+        if(!election) {
+            return next(new httpError('Election not found', 404));
+        }
+
+        res.status(200).json({ message: 'Election updated successfully' });
+    } catch (error) {
+        return next(new httpError(error));
+    }
 };
 
 // GET: /elections/:id/candidates
 // PROTECTED ROUTE
-export const getCandidatesByElectionId = (req, res, next) => {
-    res.json({ message: 'Candidates for the election retrieved successfully' });
+export const getCandidatesByElectionId = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const candidates = await CandidateModel.find({ electionId: id });
+
+        if(!candidates.length) {
+            return next(new httpError('No candidates found for this election', 404));
+        }
+
+        res.status(200).json({
+            message: 'Candidates for the election retrieved successfully',
+            candidates,
+        });
+    } catch (error) {
+        return next(new httpError(error));
+    }
 };
 
-// GET: /elections/:id/voters
-// PROTECTED ROUTE
-export const getVotersByElectionId = (req, res, next) => {
-    res.json({ message: 'Voters for the election retrieved successfully' });
+export const getVotersByElectionId = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const voters = await ElectionModel.findById(id).populate('voters');
+
+        if (!voters.length) {
+            return next(new httpError('No voters found for this election', 404));
+        }
+
+        res.status(200).json({
+            message: 'Voters for the election retrieved successfully',
+            voters,
+        });
+    } catch (error) {
+        return next(new httpError(error));
+    }
 };
