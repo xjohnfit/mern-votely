@@ -4,7 +4,6 @@ const electionSchema = new Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     thumbnail: { type: String, required: true },
-    candidates: [{ type: Types.ObjectId, ref: 'Candidate', default: [] }],
     voters: [{ type: Types.ObjectId, ref: 'Voter', default: [] }],
 }, { timestamps: true });
 
