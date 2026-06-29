@@ -6,12 +6,14 @@ import {
     updateCandidate,
     deleteCandidate,
 } from '../controllers/candidateController.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+
 const router = Router();
 
-router.post('/candidates/', addCandidate);
-router.get('/candidates/:id', getCandidate);
-router.get('/candidates/', getAllCandidates);
-router.patch('/candidates/:id', updateCandidate);
-router.delete('/candidates/:id', deleteCandidate);
+router.post('/candidates/', authMiddleware, addCandidate);
+router.get('/candidates/:id', authMiddleware, getCandidate);
+router.get('/candidates/', authMiddleware, getAllCandidates);
+router.patch('/candidates/:id', authMiddleware, updateCandidate);
+router.delete('/candidates/:id', authMiddleware, deleteCandidate);
 
 export default router;

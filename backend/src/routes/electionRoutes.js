@@ -8,15 +8,16 @@ import {
     getCandidatesByElectionId,
     getVotersByElectionId,
 } from '../controllers/electionControllers.js';
+import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = Router();
 
-router.post('/elections', addElection);
-router.get('/all-elections', getAllElections);
-router.get('/elections/:id', getElectionById);
-router.delete('/elections/:id', deleteElection);
-router.patch('/elections/:id', updateElection);
-router.get('/elections/:id/candidates', getCandidatesByElectionId);
-router.get('/elections/:id/voters', getVotersByElectionId);
+router.post('/elections', authMiddleware, addElection);
+router.get('/all-elections', authMiddleware, getAllElections);
+router.get('/elections/:id', authMiddleware, getElectionById);
+router.delete('/elections/:id', authMiddleware, deleteElection);
+router.patch('/elections/:id', authMiddleware, updateElection);
+router.get('/elections/:id/candidates', authMiddleware, getCandidatesByElectionId);
+router.get('/elections/:id/voters', authMiddleware, getVotersByElectionId);
 
 export default router;

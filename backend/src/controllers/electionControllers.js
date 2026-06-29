@@ -14,10 +14,10 @@ const uploadsDir = path.join(__dirname, '../uploads');
 // PROTECTED ROUTE - Only accessible by admin users
 export const addElection = async (req, res, next) => {
     try {
-        // Onlu admin can update an election
-        // if(!req.user.isAdmin) {
-        //     return next(new httpError('Unauthorized', 401));
-        // }
+        // Only admin can update an election
+        if(!req.user.isAdmin) {
+            return next(new httpError('Unauthorized', 401));
+        }
 
         const { title, description } = req.body;
         const { thumbnail } = req.files;
@@ -104,40 +104,71 @@ export const getElectionById = async (req, res, next) => {
 
 // DELETE: /elections/:id
 // PROTECTED ROUTE - Only accessible by admin users
-export const deleteElection = (req, res, next) => {
-    res.json({ message: 'Election deleted successfully' });
+export const deleteElection = async (req, res, next) => {
+    try {
+        // Only admin can update an election
+        if(!req.user.isAdmin) {
+            return next(new httpError('Unauthorized', 401));
+        }
+
+        const { id } = req.params;
+        const election = await ElectionModel.findById(id);
+        if (!election) {
+            return next(new httpError('Election not found', 404));
+        }
+        await election.deleteOne();
+
+        // Delete all candidates for this election
+        await CandidateModel.deleteMany({ electionId: id });
+        // Remove this election from each voter's votedElections array
+        await VoterModel.updateMany(
+            { votedElections: id },
+            { $pull: { votedElections: id } },
+        );
+        res.status(200).json({
+            message: 'Election deleted successfully',
+            election,
+        });
+    } catch (error) {
+        return next(new httpError(error));
+    }
 };
 
 // PATCH: /elections/:id
 // PROTECTED ROUTE - Only accessible by admin users
 export const updateElection = async (req, res, next) => {
     try {
-        // Onlu admin can update an election
-        // if(!req.user.isAdmin) {
-        //     return next(new httpError('Unauthorized', 401));
-        // }
+        // Only admin can update an election
+        if(!req.user.isAdmin) {
+            return next(new httpError('Unauthorized', 401));
+        }
 
         const { id } = req.params;
         const { title, description } = req.body;
 
-        if(!title || !description) {
-            return next(new httpError('Title and description are required', 422));
+        if (!title || !description) {
+            return next(
+                new httpError('Title and description are required', 422),
+            );
         }
 
         const updateData = { title, description };
 
-        if(req.files?.thumbnail) {
-
+        if (req.files?.thumbnail) {
             let { thumbnail } = req.files;
 
-            if(thumbnail.size > 1024 * 1024) {
-                return next(new httpError('Thumbnail size should not exceed 1MB', 422));
+            if (thumbnail.size > 1024 * 1024) {
+                return next(
+                    new httpError('Thumbnail size should not exceed 1MB', 422),
+                );
             }
             const thumbnailName = `${Date.now()}-${uuidv4()}-${thumbnail.name}`;
             const uploadPath = path.join(uploadsDir, thumbnailName);
             await thumbnail.mv(uploadPath, (err) => {
-                if(err) {
-                    return next(new httpError('Failed to upload thumbnail', 500));
+                if (err) {
+                    return next(
+                        new httpError('Failed to upload thumbnail', 500),
+                    );
                 }
             });
             const result = await cloudinary.uploader.upload(uploadPath, {
@@ -146,16 +177,25 @@ export const updateElection = async (req, res, next) => {
                 unique_filename: false,
             });
 
-            if(!result.secure_url) {
-                return next(new httpError('Failed to upload thumbnail to cloudinary', 422));
+            if (!result.secure_url) {
+                return next(
+                    new httpError(
+                        'Failed to upload thumbnail to cloudinary',
+                        422,
+                    ),
+                );
             }
 
             updateData.thumbnail = result.secure_url;
         }
 
-        const election = await ElectionModel.findByIdAndUpdate(id, { title, updateData }, { returnDocument: 'after' });
+        const election = await ElectionModel.findByIdAndUpdate(
+            id,
+            { title, updateData },
+            { returnDocument: 'after' },
+        );
 
-        if(!election) {
+        if (!election) {
             return next(new httpError('Election not found', 404));
         }
 
@@ -172,8 +212,10 @@ export const getCandidatesByElectionId = async (req, res, next) => {
         const { id } = req.params;
         const candidates = await CandidateModel.find({ electionId: id });
 
-        if(!candidates.length) {
-            return next(new httpError('No candidates found for this election', 404));
+        if (!candidates.length) {
+            return next(
+                new httpError('No candidates found for this election', 404),
+            );
         }
 
         res.status(200).json({
@@ -191,7 +233,9 @@ export const getVotersByElectionId = async (req, res, next) => {
         const voters = await ElectionModel.findById(id).populate('voters');
 
         if (!voters.length) {
-            return next(new httpError('No voters found for this election', 404));
+            return next(
+                new httpError('No voters found for this election', 404),
+            );
         }
 
         res.status(200).json({
