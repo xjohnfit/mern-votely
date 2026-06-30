@@ -76,26 +76,112 @@ export const addCandidate = async (req, res, next) => {
 // GET: /candidates/:id
 // PROTECTED ROUTE - Only accessible by admin users
 export const getCandidate = async (req, res, next) => {
-    res.json({ message: "Candidate retrieved successfully" });
+    try {
+        const { id } = req.params;
+        const candidate = await CandidateModel.findById(id);
+        if(!candidate) {
+            return next(new httpError('Candidate not found', 404));
+        }
+        res.status(200).json(candidate);
+    } catch (error) {
+        return next(new httpError(error));
+    }
 }
 
 // GET ALL CANDIDATES
 // GET: /candidates
 // PROTECTED ROUTE - Only accessible by admin users
 export const getAllCandidates = async (req, res, next) => {
-    res.json({ message: "All candidates retrieved successfully" });
-}
+    try {
+        // Only admin can get all candidates
+        if(!req.user.isAdmin) {
+            return next(new httpError('Unauthorized', 401));
+        }
+
+        const candidates = await CandidateModel.find();
+        if(!candidates.length) {
+            return next(new httpError('No candidates found', 404));
+        }
+        res.status(200).json(candidates);
+    } catch (error) {
+        return next(new httpError(error));
+    }
+};
 
 // UPDATE CANDIDATE
 // PUT: /candidates/:id
 // PROTECTED ROUTE - Only accessible by admin users
 export const updateCandidate = async (req, res, next) => {
-    res.json({ message: "Candidate updated successfully" });
+    try {
+
+        // Only admin can update a candidate
+        if(!req.user.isAdmin) {
+            return next(new httpError('Unauthorized', 401));
+        }
+
+        const { id } = req.params;
+        const candidate = await CandidateModel.findById(id);
+        if(!candidate) {
+            return next(new httpError('Candidate not found', 404));
+        }
+
+        const { fullName, motto } = req.body;
+        if(!fullName || !motto) {
+            return next(new httpError('All fields are required', 422));
+        }
+
+        if(req.files?.image) {
+            const { image } = req.files;
+            if(image.size > 1024 * 1024) {
+                return next(new httpError('Image size should not exceed 1MB', 422));
+            }
+        }
+
+        const imageName = `${Date.now()}-${uuidv4()}-${image.name}`;
+        const uploadPath = path.join(uploadsDir, imageName);
+        await image.mv(uploadPath, (err) => {
+            if(err) {
+                return next(new httpError('Failed to upload image', 500));
+            }
+        });
+
+        const result = await cloudinary.uploader.upload(uploadPath, {
+            folder: 'mern-votely/candidates',
+        });
+        if(!result.secure_url) {
+            return next(new httpError('Failed to upload image to cloudinary', 422));
+        }
+        const imageUrl = result.secure_url;
+
+        const updateData = { fullName, motto, image: imageUrl };
+
+        await CandidateModel.findByIdAndUpdate(id, updateData, { new: true });
+
+        res.status(200).json({ message: "Candidate updated successfully" });
+    } catch (error) {
+        return next(new httpError(error));
+    }
 }
 
 // DELETE CANDIDATE
 // DELETE: /candidates/:id
 // PROTECTED ROUTE - Only accessible by admin users
-export const deleteCandidate = (req, res, next) => {
-    res.json({ message: "Candidate deleted successfully" });
+export const deleteCandidate = async (req, res, next) => {
+    try {
+
+        // Only admin can delete a candidate
+        if(!req.user.isAdmin) {
+            return next(new httpError('Unauthorized', 401));
+        }
+
+        const { id } = req.params;
+        const candidate = await CandidateModel.findById(id);
+        if(!candidate) {
+            return next(new httpError('Candidate not found', 404));
+        }
+        await candidate.deleteOne();
+        res.status(200).json({ message: "Candidate deleted successfully" });
+    } catch (error) {
+        return next(new httpError(error));
+    }
 }

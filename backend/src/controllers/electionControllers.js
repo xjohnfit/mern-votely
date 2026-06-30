@@ -230,17 +230,15 @@ export const getCandidatesByElectionId = async (req, res, next) => {
 export const getVotersByElectionId = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const voters = await ElectionModel.findById(id).populate('voters');
+        const election = await ElectionModel.findById(id).populate('voters', '-password');
 
-        if (!voters.length) {
-            return next(
-                new httpError('No voters found for this election', 404),
-            );
+        if (!election) {
+            return next(new httpError('Election not found', 404));
         }
 
         res.status(200).json({
             message: 'Voters for the election retrieved successfully',
-            voters,
+            voters: election.voters,
         });
     } catch (error) {
         return next(new httpError(error));
