@@ -13,6 +13,7 @@ import { connectDB } from './lib/db.js';
 import voterRoutes from './routes/voterRoutes.js';
 import electionRoutes from './routes/electionRoutes.js';
 import candidateRoutes from './routes/candidateRoutes.js';
+import voteRoutes from './routes/voteRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -25,6 +26,7 @@ app.use(upload());
 app.use('/api', voterRoutes);
 app.use('/api', electionRoutes);
 app.use('/api', candidateRoutes);
+app.use('/api', voteRoutes);
 
 // Error Handling Middleware - always place after all routes
 app.use(notFound);
