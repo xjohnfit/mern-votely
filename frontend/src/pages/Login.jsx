@@ -1,12 +1,22 @@
 import { Link } from 'react-router';
 import '../styles/register.css';
 import { useState } from 'react';
+import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router';
+import { voteActions } from '../store/voteSlice';
 
 const Login = () => {
     const [userData, setUserData] = useState({
         email: '',
         password: '',
     });
+
+    const [error, setError] = useState(null);
+
+    const dispatch = useDispatch();
+
+    const navigate = useNavigate();
 
     // Function to change controlled input
     const inputHandler = (e) => {
@@ -15,14 +25,35 @@ const Login = () => {
         });
     };
 
+    const submitHandler = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/voters/login`, userData);
+            const currentUser = response.data;
+
+            // Save the user to local storage
+            localStorage.setItem('user', JSON.stringify(currentUser));
+
+            // Dispatch the action to change the current voter
+            dispatch(voteActions.changeCurrentVoter(currentUser));
+
+            // Navigate to the home page
+            navigate('/results');
+
+        } catch (error) {
+
+            setError(error.response.data.message);
+        }
+    };
+
     return (
         <section className='register'>
             <div className='container register__container'>
                 <h2>Login</h2>
-                <form>
-                    <p className='form__error-message'>
-                        Error from the backend
-                    </p>
+                <form onSubmit={submitHandler}>
+                    {error && <p className='form__error-message'>
+                        {error}
+                    </p>}
                     <input
                         onChange={inputHandler}
                         type='email'

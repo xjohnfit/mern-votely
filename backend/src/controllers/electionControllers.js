@@ -212,12 +212,6 @@ export const getCandidatesByElectionId = async (req, res, next) => {
         const { id } = req.params;
         const candidates = await CandidateModel.find({ electionId: id });
 
-        if (!candidates.length) {
-            return next(
-                new httpError('No candidates found for this election', 404),
-            );
-        }
-
         res.status(200).json({
             message: 'Candidates for the election retrieved successfully',
             candidates,

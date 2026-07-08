@@ -63,7 +63,7 @@ export const registerVoter = async (req, res, next) => {
 
         // Generate JWT token
         const token = generateToken(payload);
-
+        
         res.status(201).json({ message: "Voter registered successfully", token, voter: payload });
 
     } catch (error) {
