@@ -113,8 +113,11 @@ jobs:
         # Create new secret from GitHub Actions secrets
         kubectl create secret generic votely-secrets \
           --from-literal=MONGO_URI="${{ secrets.MONGO_URI }}" \
-          --from-literal=JWT_SECRET="${{ secrets.JWT_SECRET }}"
-          # Add all your other secrets here with --from-literal=KEY="${{ secrets.KEY }}"
+          --from-literal=JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+          --from-literal=ADMIN_EMAIL="${{ secrets.ADMIN_EMAIL }}" \
+          --from-literal=CLOUDINARY_CLOUD_NAME="${{ secrets.CLOUDINARY_CLOUD_NAME }}" \
+          --from-literal=CLOUDINARY_API_KEY="${{ secrets.CLOUDINARY_API_KEY }}" \
+          --from-literal=CLOUDINARY_API_SECRET="${{ secrets.CLOUDINARY_API_SECRET }}"
 
     - name: Deploy to Kubernetes
       run: |
