@@ -28,8 +28,10 @@ const Login = () => {
     const submitHandler = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/voters/login`, userData);
-            const currentUser = response.data;
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/voters/login`, userData, {
+                withCredentials: true,
+            });
+            const currentUser = response.data.voter;
 
             // Save the user to local storage
             localStorage.setItem('user', JSON.stringify(currentUser));

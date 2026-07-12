@@ -1,0 +1,85 @@
+# votely-secrets is created/updated by .github/workflows/deploy-backend.yml
+# from GitHub Actions repository secrets before this deployment is applied.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: votely-backend
+  labels:
+    app: votely-backend
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: votely-backend
+  template:
+    metadata:
+      labels:
+        app: votely-backend
+    spec:
+      containers:
+      - name: backend
+        image: xjohnfit/votely-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "5000"
+        - name: FRONTEND_URL
+          value: "https://votely.codewithxjohn.com"
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: votely-secrets
+              key: MONGO_URI
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: votely-secrets
+              key: JWT_SECRET
+        - name: ADMIN_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: votely-secrets
+              key: ADMIN_EMAIL
+        - name: CLOUDINARY_CLOUD_NAME
+          valueFrom:
+            secretKeyRef:
+              name: votely-secrets
+              key: CLOUDINARY_CLOUD_NAME
+        - name: CLOUDINARY_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: votely-secrets
+              key: CLOUDINARY_API_KEY
+        - name: CLOUDINARY_API_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: votely-secrets
+              key: CLOUDINARY_API_SECRET
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "75m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5

@@ -41,6 +41,11 @@
     border-color: var(--color-gray-100);
 }
 
+.dark .candidate {
+    background: var(--color-gray-200);
+    border-color: var(--color-gray-200);
+}
+
 .candidate__image {
     aspect-ratio: 1/1;
     overflow: hidden;

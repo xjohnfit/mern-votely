@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import CandidateRating from './CandidateRating';
 import { Link } from 'react-router';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
 import Loader from './Loader';
 
 const ResultElection = ({ _id: id, thumbnail, title }) => {
@@ -13,7 +12,6 @@ const ResultElection = ({ _id: id, thumbnail, title }) => {
     const [electionCandidates, setElectionCandidates] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const token = useSelector((state) => state?.vote?.currentVoter?.token);
     const totalVotes = electionCandidates.reduce(
         (sum, candidate) => sum + candidate.voteCount,
         0,
@@ -26,9 +24,6 @@ const ResultElection = ({ _id: id, thumbnail, title }) => {
                 `${import.meta.env.VITE_API_URL}/elections/${id}/candidates`,
                 {
                     withCredentials: true,
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
                 },
             );
             setElectionCandidates(response.data.candidates ?? []);

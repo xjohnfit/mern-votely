@@ -1,0 +1,62 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: votely-ingress
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  rules:
+  # Frontend - app.yourdomain.com
+  - host: votely.codewithxjohn.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: votely-frontend
+            port:
+              number: 80
+  # Frontend - www.app.yourdomain.com
+  - host: www.votely.codewithxjohn.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: votely-frontend
+            port:
+              number: 80
+  # Backend API - api.app.yourdomain.com
+  - host: api.votely.codewithxjohn.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: votely-backend
+            port:
+              number: 5000  # YOUR_BACKEND_PORT
+  # Backend API - www.api.app.yourdomain.com
+  - host: www.api.votely.codewithxjohn.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: votely-backend
+            port:
+              number: 5000  # YOUR_BACKEND_PORT
+  tls:
+  - hosts:
+    - votely.codewithxjohn.com
+    - www.votely.codewithxjohn.com
+    - www.api.votely.codewithxjohn.com
+    - api.votely.codewithxjohn.com
+    secretName: votely-tls

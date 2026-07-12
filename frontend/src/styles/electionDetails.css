@@ -54,6 +54,14 @@
     background: var(--color-gray-900);
 }
 
+.dark .electionCandidate {
+    background: var(--color-gray-200);
+}
+
+.dark .electionCandidate__btn:hover {
+    background: var(--color-gray-100);
+}
+
 .add__candidate-btn {
     background: var(--color-gray-100);
     border: 2px solid var(--color-primary);
@@ -65,6 +73,10 @@
     display: grid;
     place-items: center;
     min-height: 15rem;
+}
+
+.dark .add__candidate-btn {
+    background: var(--color-gray-200);
 }
 
 .voters {
@@ -91,6 +103,10 @@
 
 .voters__table tbody tr:nth-child(odd) {
     background: var(--color-gray-0);
+}
+
+.dark .voters__table tbody tr:nth-child(odd) {
+    background: var(--color-gray-200);
 }
 
 

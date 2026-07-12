@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: votely-frontend
+  labels:
+    app: votely-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: votely-frontend
+  template:
+    metadata:
+      labels:
+        app: votely-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: xjohnfit/votely-frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5

@@ -212,9 +212,13 @@ export const getCandidatesByElectionId = async (req, res, next) => {
         const { id } = req.params;
         const candidates = await CandidateModel.find({ electionId: id });
 
+        const voter = await VoterModel.findById(req.user.id).select('votedElections');
+        const hasVoted = voter?.votedElections.some((electionId) => electionId.toString() === id) ?? false;
+
         res.status(200).json({
             message: 'Candidates for the election retrieved successfully',
             candidates,
+            hasVoted,
         });
     } catch (error) {
         return next(new httpError(error));

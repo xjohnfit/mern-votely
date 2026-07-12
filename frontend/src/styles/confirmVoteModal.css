@@ -4,11 +4,6 @@
 
 }
 
-.dark .confirm__vote-content {
-    background-color: var(--color-gray-900);
-    color: var(--color-gray-100);
-}
-
 .confirm__vote-content h5 {
     margin: 2rem 0;
     color: var(--color-primary);
@@ -36,4 +31,8 @@
     gap: 2rem;
     margin-inline: auto;
     margin-bottom: 2rem;
+}
+
+.dark .confirm__vote-cta .btn:not(.primary) {
+    background: var(--color-gray-300);
 }

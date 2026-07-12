@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv/config';
 import upload from 'express-fileupload';
+import cookieParser from 'cookie-parser';
 
 // Error Middleware
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
@@ -21,7 +22,12 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({ credentials: true, origin: [process.env.FRONTEND_URL] }));
 app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(upload());
+
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+});
 
 app.use('/api', voterRoutes);
 app.use('/api', electionRoutes);

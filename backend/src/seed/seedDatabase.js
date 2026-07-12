@@ -49,6 +49,18 @@ const electionData = [
             { fullName: 'Omar Haddad', motto: 'Open source, open minds.', image: 'https://picsum.photos/seed/omar/400/400' },
         ],
     },
+    {
+        title: 'Library Board Trustee',
+        description: 'Upcoming election for a seat on the public library board. Candidates not yet announced.',
+        thumbnail: 'https://picsum.photos/seed/election-library/600/400',
+        candidates: [],
+    },
+    {
+        title: 'Parks Committee Representative',
+        description: 'Upcoming election for the city parks committee. Candidate registration is still open.',
+        thumbnail: 'https://picsum.photos/seed/election-parks/600/400',
+        candidates: [],
+    },
 ];
 
 const seedDatabase = async () => {
@@ -79,7 +91,8 @@ const seedDatabase = async () => {
 
             // Each non-admin voter casts one vote for a random candidate, so
             // voteCounts, election.voters, and voter.votedElections stay consistent.
-            for (const voter of nonAdminVoters) {
+            // Elections without candidates get no votes.
+            for (const voter of candidates.length ? nonAdminVoters : []) {
                 const candidate = candidates[Math.floor(Math.random() * candidates.length)];
                 candidate.voteCount += 1;
                 election.voters.push(voter._id);

@@ -3,6 +3,14 @@ import httpError from "../utils/httpError.js";
 import bcrypt from "bcryptjs";
 import generateToken from "../utils/token.js";
 
+// Matches the token's 1d expiry
+const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 24 * 60 * 60 * 1000
+};
+
 // POST: /voters/register
 // UNPROTECTED ROUTE
 export const registerVoter = async (req, res, next) => {
@@ -61,10 +69,11 @@ export const registerVoter = async (req, res, next) => {
             isAdmin: newVoter.isAdmin
         };
 
-        // Generate JWT token
+        // Generate JWT token and set it as an httpOnly cookie
         const token = generateToken(payload);
-        
-        res.status(201).json({ message: "Voter registered successfully", token, voter: payload });
+        res.cookie("token", token, cookieOptions);
+
+        res.status(201).json({ message: "Voter registered successfully", voter: payload });
 
     } catch (error) {
         return next(new httpError(error.message, 422));
@@ -106,13 +115,22 @@ export const loginVoter = async (req, res, next) => {
             isAdmin: existingVoter.isAdmin
         };
 
-        // Generate JWT token
+        // Generate JWT token and set it as an httpOnly cookie
         const token = generateToken(payload);
+        res.cookie("token", token, cookieOptions);
 
-        res.json({ message: "Voter logged in successfully", token, voter: payload });
+        res.json({ message: "Voter logged in successfully", voter: payload });
     } catch(error) {
         return next(new httpError(error.message, 422));
     }
+}
+
+// POST: /voters/logout
+// UNPROTECTED ROUTE
+export const logoutVoter = (req, res) => {
+    // Options must match the ones used to set the cookie for the browser to clear it
+    res.clearCookie("token", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" });
+    res.json({ message: "Voter logged out successfully" });
 }
 
 // GET: /voters/:id
