@@ -15,6 +15,10 @@ dist
 dist-ssr
 *.local
 
+# Temp upload staging (files are pushed to Cloudinary, not meant to persist)
+backend/src/uploads/*
+!backend/src/uploads/.gitkeep
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

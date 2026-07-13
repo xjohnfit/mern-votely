@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import httpError from '../utils/httpError.js';
 import ElectionModel from '../models/electionModel.js';
@@ -9,6 +10,7 @@ import VoterModel from '../models/voterModel.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, '../uploads');
+fs.mkdirSync(uploadsDir, { recursive: true });
 
 // POST: /elections
 // PROTECTED ROUTE - Only accessible by admin users
@@ -54,6 +56,7 @@ export const addElection = async (req, res, next) => {
             use_filename: true,
             unique_filename: false,
         });
+        fs.unlink(uploadPath, () => {});
 
         if (!result.secure_url) {
             return next(
@@ -176,6 +179,7 @@ export const updateElection = async (req, res, next) => {
                 use_filename: true,
                 unique_filename: false,
             });
+            fs.unlink(uploadPath, () => {});
 
             if (!result.secure_url) {
                 return next(

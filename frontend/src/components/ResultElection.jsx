@@ -57,7 +57,7 @@ const ResultElection = ({ _id: id, thumbnail, title }) => {
                     <ul className='result__list'>
                         {electionCandidates.map((candidate) => (
                             <CandidateRating
-                                key={candidate.id}
+                                key={candidate._id}
                                 {...candidate}
                                 totalVotes={totalVotes}
                             />

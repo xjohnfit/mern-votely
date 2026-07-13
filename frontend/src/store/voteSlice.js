@@ -7,7 +7,8 @@ const initialState = {
     selectedVoteCandidate: '',
     selectedElection: '',
     idOfElectionToUpdate: '',
-    addCandidateElectionId: ''
+    addCandidateElectionId: '',
+    candidateToUpdate: null,
 }
 
 
@@ -33,6 +34,10 @@ const voteSlice = createSlice({
 
         changeAddCandidateElectionId(state, action) {
             state.addCandidateElectionId = action.payload
+        },
+
+        changeCandidateToUpdate(state, action) {
+            state.candidateToUpdate = action.payload;
         }
     }
 });

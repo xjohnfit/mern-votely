@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { UiActions } from '../store/uiSlice';
 import { useParams } from 'react-router';
 import AddCandidateModal from '../components/AddCandidateModal';
+import UpdateCandidateModal from '../components/UpdateCandidateModal';
 
 const ElectionDetails = () => {
     const { id } = useParams();
@@ -25,6 +26,10 @@ const ElectionDetails = () => {
 
     const addCandidateModalShowing = useSelector(
         (state) => state.ui.addCandidateModalShowing,
+    );
+
+    const updateCandidateModalShowing = useSelector(
+        (state) => state.ui.updateCandidateModalShowing,
     );
 
     // Get election, its candidates, and its voters
@@ -95,6 +100,7 @@ const ElectionDetails = () => {
                             <ElectionCandidate
                                 key={candidate._id}
                                 {...candidate}
+                                onCandidateDeleted={getElectionDetails}
                             />
                         ))}
                         {isAdmin && (
@@ -132,6 +138,9 @@ const ElectionDetails = () => {
                     electionId={id}
                     onCandidateAdded={getElectionDetails}
                 />
+            )}
+            {updateCandidateModalShowing && (
+                <UpdateCandidateModal onCandidateUpdated={getElectionDetails} />
             )}
         </>
     );

@@ -5,6 +5,7 @@ const initialState = {
         voteCandidateModalShowing: false,
         electionModalShowing: false,
         updateElectionModalShowing: false,
+        updateCandidateModalShowing: false,
     };
 
 const uiSlice = createSlice({
@@ -37,6 +38,13 @@ const uiSlice = createSlice({
         },
         closeUpdateElectionModal(state) {
             state.updateElectionModalShowing = false
+        },
+
+        openUpdateCandidateModal(state) {
+            state.updateCandidateModalShowing = true
+        },
+        closeUpdateCandidateModal(state) {
+            state.updateCandidateModalShowing = false
         },
     }
 });

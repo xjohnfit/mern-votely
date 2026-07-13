@@ -46,6 +46,7 @@
 
 .election__cta {
     display: flex;
+    flex-wrap: wrap;
     gap: 1.2rem;
     margin-top: 1rem;
 }

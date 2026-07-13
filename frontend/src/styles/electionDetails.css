@@ -37,17 +37,26 @@
     padding: 1.3rem;
 }
 
-.electionCandidate__btn {
+.electionCandidate__actions {
     position: absolute;
     right: 0;
     top: 0;
     margin: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.electionCandidate__btn {
     background: var(--color-danger);
     color: var(--color-gray-0);
     padding: 0.5rem;
     font-size: 1.1rem;
     border-radius: var(--radius-1);
     display: flex;
+}
+
+.electionCandidate__btn--edit {
+    background: var(--color-primary);
 }
 
 .electionCandidate__btn:hover {

@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import httpError from '../utils/httpError.js';
 import CandidateModel from '../models/candidatesModel.js';
@@ -8,6 +9,7 @@ import cloudinary from '../utils/cloudinary.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, '../uploads');
+fs.mkdirSync(uploadsDir, { recursive: true });
 
 // ADD CANDIDATE
 // POST: /candidates
@@ -51,6 +53,7 @@ export const addCandidate = async (req, res, next) => {
         const result = await cloudinary.uploader.upload(uploadPath, {
             folder: 'mern-votely/candidates',
         });
+        fs.unlink(uploadPath, () => {});
 
         // Check if image was uploaded successfully
         if(!result.secure_url) {
@@ -130,30 +133,32 @@ export const updateCandidate = async (req, res, next) => {
             return next(new httpError('All fields are required', 422));
         }
 
+        const updateData = { fullName, motto };
+
         if(req.files?.image) {
             const { image } = req.files;
             if(image.size > 1024 * 1024) {
                 return next(new httpError('Image size should not exceed 1MB', 422));
             }
-        }
 
-        const imageName = `${Date.now()}-${uuidv4()}-${image.name}`;
-        const uploadPath = path.join(uploadsDir, imageName);
-        await image.mv(uploadPath, (err) => {
-            if(err) {
-                return next(new httpError('Failed to upload image', 500));
+            const imageName = `${Date.now()}-${uuidv4()}-${image.name}`;
+            const uploadPath = path.join(uploadsDir, imageName);
+            await image.mv(uploadPath, (err) => {
+                if(err) {
+                    return next(new httpError('Failed to upload image', 500));
+                }
+            });
+
+            const result = await cloudinary.uploader.upload(uploadPath, {
+                folder: 'mern-votely/candidates',
+            });
+            fs.unlink(uploadPath, () => {});
+            if(!result.secure_url) {
+                return next(new httpError('Failed to upload image to cloudinary', 422));
             }
-        });
 
-        const result = await cloudinary.uploader.upload(uploadPath, {
-            folder: 'mern-votely/candidates',
-        });
-        if(!result.secure_url) {
-            return next(new httpError('Failed to upload image to cloudinary', 422));
+            updateData.image = result.secure_url;
         }
-        const imageUrl = result.secure_url;
-
-        const updateData = { fullName, motto, image: imageUrl };
 
         await CandidateModel.findByIdAndUpdate(id, updateData, { new: true });
 

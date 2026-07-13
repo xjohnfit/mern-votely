@@ -1,7 +1,8 @@
-import { Link, useNavigate } from 'react-router';
+import { Link, Navigate, useNavigate } from 'react-router';
 import '../styles/register.css';
 import { useState } from 'react';
 import axios from 'axios'
+import { useSelector } from 'react-redux';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -13,6 +14,12 @@ const Register = () => {
     });
 
     const [error, setError] = useState('');
+
+    const currentVoter = useSelector((state) => state?.vote?.currentVoter);
+
+    if (currentVoter) {
+        return <Navigate to='/results' replace />;
+    }
 
     const submitHandler = async (e) => {
         e.preventDefault();

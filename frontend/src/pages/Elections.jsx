@@ -79,6 +79,7 @@ const Elections = () => {
                                     key={election._id}
                                     id={election._id}
                                     {...election}
+                                    onElectionDeleted={getElections}
                                 />
                             ))}
                         </menu>

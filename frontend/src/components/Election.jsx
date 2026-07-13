@@ -1,9 +1,13 @@
+import { useState } from 'react';
 import { Link } from 'react-router';
+import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { UiActions } from '../store/uiSlice';
 import { voteActions } from '../store/voteSlice';
 
-const Election = ({ id, title, description, thumbnail }) => {
+const Election = ({ id, title, description, thumbnail, onElectionDeleted }) => {
+
+    const [deleting, setDeleting] = useState(false);
 
     const dispatch = useDispatch();
 
@@ -17,6 +21,25 @@ const Election = ({ id, title, description, thumbnail }) => {
         dispatch(UiActions.openUpdateElectionModal());
     }
 
+    const deleteElection = async () => {
+        if (!window.confirm(`Delete election "${title}"? This will also remove its candidates and cannot be undone.`)) {
+            return;
+        }
+
+        try {
+            setDeleting(true);
+            await axios.delete(
+                `${import.meta.env.VITE_API_URL}/elections/${id}`,
+                { withCredentials: true },
+            );
+            await onElectionDeleted?.();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setDeleting(false);
+        }
+    }
+
   return (
     <article className="election">
         <div className="election__image">
@@ -28,7 +51,12 @@ const Election = ({ id, title, description, thumbnail }) => {
             <div className="election__cta">
                 <Link to={`/elections/${id}`} className='btn'>View</Link>
                 {isAdmin && (
-                    <button className="btn primary" onClick={openUpdateModal}>Edit</button>
+                    <>
+                        <button className="btn primary" onClick={openUpdateModal}>Edit</button>
+                        <button className="btn danger" onClick={deleteElection} disabled={deleting}>
+                            {deleting ? 'Deleting...' : 'Delete'}
+                        </button>
+                    </>
                 )}
             </div>
         </div>
