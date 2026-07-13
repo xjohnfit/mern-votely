@@ -1,91 +1,138 @@
-import { IoMdAddCircleOutline } from 'react-icons/io';
-import ElectionCandidate from '../components/ElectionCandidate';
-import { elections as dummyElections } from '../data/data';
-import { candidates as dummyCandidates } from '../data/data';
-import { voters as dummyVoters } from '../data/data';
-import '../styles/electionDetails.css';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { IoAddOutline } from 'react-icons/io5';
-import { useDispatch } from 'react-redux';
+import ElectionCandidate from '../components/ElectionCandidate';
+import Loader from '../components/Loader';
+import '../styles/electionDetails.css';
+import { useDispatch, useSelector } from 'react-redux';
 import { UiActions } from '../store/uiSlice';
 import { useParams } from 'react-router';
 import AddCandidateModal from '../components/AddCandidateModal';
-import { useSelector } from 'react-redux';
 
 const ElectionDetails = () => {
-
     const { id } = useParams();
     const dispatch = useDispatch();
 
-    const currentElection = dummyElections.find(
-        (election) => election.id === Number(id),
+    const [election, setElection] = useState(null);
+    const [candidates, setCandidates] = useState([]);
+    const [voters, setVoters] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const isAdmin = useSelector(
+        (state) => state?.vote?.currentVoter?.isAdmin,
     );
 
-    if (!currentElection) {
-        return <section className='electionDetails'>Election not found.</section>;
-    }
-
-    const electionCandidates = dummyCandidates.filter(
-        (candidate) => candidate.electionId === Number(id),
+    const addCandidateModalShowing = useSelector(
+        (state) => state.ui.addCandidateModalShowing,
     );
 
-    const addCandidateModalShowing = useSelector(state => state.ui.addCandidateModalShowing);
+    // Get election, its candidates, and its voters
+    const getElectionDetails = async () => {
+        try {
+            setLoading(true);
+            const [electionRes, candidatesRes, votersRes] = await Promise.all([
+                axios.get(`${import.meta.env.VITE_API_URL}/elections/${id}`, {
+                    withCredentials: true,
+                }),
+                axios.get(
+                    `${import.meta.env.VITE_API_URL}/elections/${id}/candidates`,
+                    { withCredentials: true },
+                ),
+                axios.get(
+                    `${import.meta.env.VITE_API_URL}/elections/${id}/voters`,
+                    { withCredentials: true },
+                ),
+            ]);
+            setElection(electionRes.data);
+            setCandidates(candidatesRes.data.candidates ?? []);
+            setVoters(votersRes.data.voters ?? []);
+            setError(null);
+        } catch (error) {
+            setError(error.response?.data?.message || error.message);
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        getElectionDetails();
+    }, [id]);
 
     // Open modal to add candidate
     const openModal = () => {
         dispatch(UiActions.openAddCandidateModal());
+    };
+
+    if (loading) {
+        return <Loader />;
+    }
+
+    if (error) {
+        return <section className='electionDetails'>{error}</section>;
+    }
+
+    if (!election) {
+        return <section className='electionDetails'>Election not found.</section>;
     }
 
     return (
         <>
-        <section className='electionDetails'>
-            <div className='container electionDetails__container'>
-                <h2>{currentElection.title}</h2>
-                <p>{currentElection.description}</p>
-                <div className='electionDetails__image'>
-                    <img
-                        src={currentElection.thumbnail}
-                        alt={currentElection.title}
-                    />
-                </div>
-
-                <menu className='electionDetails__candidates'>
-                    {electionCandidates.map((candidate) => (
-                        <ElectionCandidate
-                            key={candidate.id}
-                            {...candidate}
+            <section className='electionDetails'>
+                <div className='container electionDetails__container'>
+                    <h2>{election.title}</h2>
+                    <p>{election.description}</p>
+                    <div className='electionDetails__image'>
+                        <img
+                            src={election.thumbnail}
+                            alt={election.title}
                         />
-                    ))}
-                    <button className="add__candidate-btn" onClick={openModal}>
-                        <IoAddOutline />
-                    </button>
-                </menu>
+                    </div>
 
-                <article className='voters'>
-                    <h2>Voters</h2>
-                    <table className='voters__table'>
-                        <thead>
-                            <tr>
-                                <th>Full Name</th>
-                                <th>Email</th>
-                                <th>Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {dummyVoters.map((voter) => (
-                                <tr key={voter.id}>
-                                    <td>
-                                        <h5>{voter.fullName}</h5>
-                                    </td>
-                                    <td>{voter.email}</td>
-                                    <td>09:45</td>
+                    <menu className='electionDetails__candidates'>
+                        {candidates.map((candidate) => (
+                            <ElectionCandidate
+                                key={candidate._id}
+                                {...candidate}
+                            />
+                        ))}
+                        {isAdmin && (
+                            <button className='add__candidate-btn' onClick={openModal}>
+                                <IoAddOutline />
+                            </button>
+                        )}
+                    </menu>
+
+                    <article className='voters'>
+                        <h2>Voters</h2>
+                        <table className='voters__table'>
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </article>
-            </div>
-        </section>
-        {addCandidateModalShowing && <AddCandidateModal />}
+                            </thead>
+                            <tbody>
+                                {voters.map((voter) => (
+                                    <tr key={voter._id}>
+                                        <td>
+                                            <h5>{voter.fullName}</h5>
+                                        </td>
+                                        <td>{voter.email}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </article>
+                </div>
+            </section>
+            {addCandidateModalShowing && (
+                <AddCandidateModal
+                    electionId={id}
+                    onCandidateAdded={getElectionDetails}
+                />
+            )}
         </>
     );
 };

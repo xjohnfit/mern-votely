@@ -1,8 +1,8 @@
-import { Link } from 'react-router';
+import { Link, Navigate } from 'react-router';
 import '../styles/register.css';
 import { useState } from 'react';
 import axios from 'axios';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { voteActions } from '../store/voteSlice';
 
@@ -17,6 +17,12 @@ const Login = () => {
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
+
+    const currentVoter = useSelector((state) => state?.vote?.currentVoter);
+
+    if (currentVoter) {
+        return <Navigate to='/results' replace />;
+    }
 
     // Function to change controlled input
     const inputHandler = (e) => {

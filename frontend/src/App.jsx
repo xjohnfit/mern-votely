@@ -10,12 +10,13 @@ import ElectionDetails from './pages/ElectionDetails';
 import Candidates from './pages/Candidates';
 import Congrats from './pages/Congrats';
 import Logout from './pages/Logout';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const router = createBrowserRouter([
-    { 
-      path: '/', 
-      element: <Layout />, 
-      errorElement: <ErrorPage />, 
+    {
+      path: '/',
+      element: <Layout />,
+      errorElement: <ErrorPage />,
       children: [
         {
           index: true,
@@ -26,30 +27,35 @@ const router = createBrowserRouter([
           element: <Register />
         },
         {
-          path: 'results',
-          element: <Results />
-        },
-        {
-          path: 'elections',
-          element: <Elections />
-        },
-        {
-          path: 'elections/:id',
-          element: <ElectionDetails />
-        },
-        {
-          path: 'elections/:id/candidates',
-          element: <Candidates />
-        },
-        {
-          path: 'congrats',
-          element: <Congrats />
-        },
-        {
-          path: 'logout',
-          element: <Logout />
+          element: <ProtectedRoute />,
+          children: [
+            {
+              path: 'results',
+              element: <Results />
+            },
+            {
+              path: 'elections',
+              element: <Elections />
+            },
+            {
+              path: 'elections/:id',
+              element: <ElectionDetails />
+            },
+            {
+              path: 'elections/:id/candidates',
+              element: <Candidates />
+            },
+            {
+              path: 'congrats',
+              element: <Congrats />
+            },
+            {
+              path: 'logout',
+              element: <Logout />
+            }
+          ]
         }
-      ] 
+      ]
     },
 ]);
 

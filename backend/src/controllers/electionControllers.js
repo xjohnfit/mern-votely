@@ -191,8 +191,8 @@ export const updateElection = async (req, res, next) => {
 
         const election = await ElectionModel.findByIdAndUpdate(
             id,
-            { title, updateData },
-            { returnDocument: 'after' },
+            updateData,
+            { new: true },
         );
 
         if (!election) {

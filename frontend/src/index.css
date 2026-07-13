@@ -219,6 +219,59 @@ button {
     background: var(--color-gray-300);
 }
 
+.file-upload__input {
+    display: none;
+}
+
+.file-upload {
+    margin-top: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 0.15rem dashed var(--color-gray-300);
+    border-radius: var(--radius-1);
+    background: var(--color-gray-100);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.file-upload:hover {
+    border-color: var(--color-primary);
+}
+
+.file-upload__icon {
+    font-size: 1.6rem;
+    color: var(--color-gray-500);
+    flex-shrink: 0;
+}
+
+.file-upload__preview {
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius-1);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.file-upload__filename {
+    font-size: 0.8rem;
+    color: var(--color-gray-900);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-upload__placeholder {
+    font-size: 0.8rem;
+    color: var(--color-gray-500);
+}
+
+.dark .file-upload {
+    background: var(--color-gray-300);
+    border-color: var(--color-gray-400);
+}
+
 .loader {
     display: grid;
     place-items: center;
